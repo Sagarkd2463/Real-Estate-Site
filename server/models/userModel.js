@@ -14,7 +14,11 @@ const userSchema = new mongoose.Schema({
     password: {
         type: String,
         required: true,
-    }
+    },
+    avatar: {
+        type: String,
+        default: "c:\Users\SAGAR\OneDrive\Desktop\Whatsapp Icons\avatar1.jpeg",
+    },
 }, { timestamps: true });
 
 const User = mongoose.model('User', userSchema);
