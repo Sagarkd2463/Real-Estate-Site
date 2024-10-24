@@ -2,9 +2,12 @@ require('dotenv').config();
 require('./database/db');
 
 const express = require('express');
+const cookieParser = require('cookie-parser');
+
+//Routes
 const userRouter = require('./routes/userRoute');
 const authRouter = require('./routes/userAuthRoute');
-const cookieParser = require('cookie-parser');
+const listingRoute = require('./routes/listingRoute');
 
 const app = express();
 
@@ -13,6 +16,7 @@ app.use(cookieParser());
 
 app.use('/api/user', userRouter);
 app.use('/api/auth', authRouter);
+app.use('/api/listing', listingRoute);
 
 app.use((err, req, res, next) => {
     const statusCode = err.statusCode || 500;
