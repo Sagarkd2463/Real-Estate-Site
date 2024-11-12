@@ -2,7 +2,7 @@ import React from 'react';
 import { GoogleAuthProvider, getAuth, signInWithPopup } from 'firebase/auth';
 import { FirebaseApp } from '../Firebase';
 import { useDispatch } from 'react-redux';
-import { signInSuccess } from '../redux/user/userSlice';
+import { signInFailure, signInSuccess } from '../redux/user/userSlice';
 import { useNavigate } from 'react-router-dom';
 
 const OAuth = () => {
@@ -32,7 +32,7 @@ const OAuth = () => {
             dispatch(signInSuccess(data));
             navigate('/');
         } catch (error) {
-            console.log("Google authentication failed...", error);
+            dispatch(signInFailure(error.message));
         }
     };
 
