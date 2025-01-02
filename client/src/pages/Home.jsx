@@ -2,163 +2,139 @@ import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import 'swiper/css/bundle';
-import SwiperCore from 'swiper';
 import { Navigation } from 'swiper/modules';
 import ListingItem from '../components/ListingItem';
 
 function Home() {
-
     const [offerListings, setOfferListings] = useState([]);
     const [saleListings, setSaleListings] = useState([]);
     const [rentListings, setRentListings] = useState([]);
-
-    SwiperCore.use([Navigation]);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState('');
 
     useEffect(() => {
+        const fetchListings = async () => {
+            setLoading(true);
+            setError('');
 
-        const fetchOfferListings = async () => {
             try {
+                const [offers, rent, sale] = await Promise.all([
+                    fetch('/api/listing/get?offer=true&limit=4').then((res) => {
+                        if (!res.ok) throw new Error('Failed to fetch offer listings');
+                        return res.json();
+                    }),
+                    fetch('/api/listing/get?type=rent&limit=4').then((res) => {
+                        if (!res.ok) throw new Error('Failed to fetch rent listings');
+                        return res.json();
+                    }),
+                    fetch('/api/listing/get?type=sale&limit=4').then((res) => {
+                        if (!res.ok) throw new Error('Failed to fetch sale listings');
+                        return res.json();
+                    }),
+                ]);
 
-                const res = await fetch('/api/listing/get?offer=true&limit=4');
-                const data = await res.json();
-
-                setOfferListings(data);
-                fetchRentListings();
-            } catch (error) {
-                console.log(error.message);
+                setOfferListings(offers);
+                setRentListings(rent);
+                setSaleListings(sale);
+            } catch (err) {
+                setError(err.message);
+                console.error(err.message);
+            } finally {
+                setLoading(false);
             }
         };
 
-        const fetchRentListings = async () => {
-            try {
-
-                const res = await fetch('/api/listing/get?type=rent&limit=4');
-                const data = await res.json();
-
-                setRentListings(data);
-                fetchSaleListings();
-            } catch (error) {
-                console.log(error.message);
-            }
-        };
-
-        const fetchSaleListings = async () => {
-            try {
-
-                const res = await fetch('/api/listing/get?type=sale&limit=4');
-                const data = await res.json();
-
-                setSaleListings(data);
-            } catch (error) {
-                console.log(error.message);
-            }
-        };
-
-        fetchOfferListings();
+        fetchListings();
     }, []);
 
     return (
         <div>
-
             <div className="flex flex-col gap-6 p-28 px-3 max-w-6xl mx-auto">
-                <h1 className='text-slate-700 font-bold text-3xl lg:text-6xl '>
-                    Find your next <span className='text-slate-500'>perfect</span>
+                <h1 className="text-slate-700 font-bold text-3xl lg:text-6xl">
+                    Find your next <span className="text-slate-500">perfect</span>
                     <br />
                     place with ease
                 </h1>
 
-                <div className="text-gray-400 text-xs sm:text-sm ">
-                    Brick Estate is the best place to find your next
-                    perfect place to live.
+                <div className="text-gray-400 text-xs sm:text-sm">
+                    Brick Estate is the best place to find your next perfect place to live.
                     <br />
                     We have a wide range of properties for you to choose from.
                 </div>
 
-                <Link to={'/search'}
-                    className='text-xs sm:text-sm text-blue-800 font-bold hover:underline'>
+                <Link
+                    to="/search"
+                    className="text-xs sm:text-sm text-blue-800 font-bold hover:underline"
+                >
                     Let's start now...
                 </Link>
             </div>
 
-            <Swiper navigation>
-                {
-                    offerListings && offerListings.length > 0 &&
-                    offerListings.map((offerlisting) => (
-                        <SwiperSlide>
-                            <div className="h-[500px]"
-                                key={offerlisting._id}
-                                style={{ background: `url(${offerlisting.imageUrls[0]}) center no-repeat`, backgroundSize: "cover" }}></div>
-                        </SwiperSlide>
-                    ))
-                }
-            </Swiper>
+            {loading && <p className="text-center text-gray-500">Loading listings...</p>}
+            {error && <p className="text-center text-red-500">Error: {error}</p>}
 
-            <div className="max-w-6xl mx-auto p-3 flex flex-col gap-8 my-10">
-                {
-                    offerListings && offerListings.length > 0 && (
-                        <div className="">
-                            <div className="my-3">
-                                <h2 className='text-2xl font-semibold text-slate-600'>Recent offers</h2>
-                                <Link to={'/search?offer=true'}
-                                    className='text-sm text-blue-800 hover:underline'>
-                                    Show more offers
-                                </Link>
-                            </div>
+            {!loading && !error && (
+                <>
+                    {offerListings.length > 0 && (
+                        <Swiper navigation modules={[Navigation]}>
+                            {offerListings.map((offerListing) => (
+                                <SwiperSlide key={offerListing._id}>
+                                    <div
+                                        className="h-[500px]"
+                                        style={{
+                                            background: `url(${offerListing.imageUrls[0]}) center no-repeat`,
+                                            backgroundSize: 'cover',
+                                        }}
+                                    ></div>
+                                </SwiperSlide>
+                            ))}
+                        </Swiper>
+                    )}
 
-                            <div className="flex flex-wrap gap-4">
-                                {
-                                    offerListings.map((listing) => (
-                                        <ListingItem listing={listing} key={listing._id} />
-                                    ))
-                                }
-                            </div>
-                        </div>
-                    )
-                }
+                    <div className="max-w-6xl mx-auto p-3 flex flex-col gap-8 my-10">
+                        {offerListings.length > 0 && (
+                            <Section
+                                title="Recent offers"
+                                linkTo="/search?offer=true"
+                                listings={offerListings}
+                            />
+                        )}
 
-                {
-                    rentListings && rentListings.length > 0 && (
-                        <div className="">
-                            <div className="my-3">
-                                <h2 className='text-2xl font-semibold text-slate-600'>Recent places for rent</h2>
-                                <Link to={'/search?type=rent'}
-                                    className='text-sm text-blue-800 hover:underline'>
-                                    Show more places for rent
-                                </Link>
-                            </div>
+                        {rentListings.length > 0 && (
+                            <Section
+                                title="Recent places for rent"
+                                linkTo="/search?type=rent"
+                                listings={rentListings}
+                            />
+                        )}
 
-                            <div className="flex flex-wrap gap-4">
-                                {
-                                    rentListings.map((listing) => (
-                                        <ListingItem listing={listing} key={listing._id} />
-                                    ))
-                                }
-                            </div>
-                        </div>
-                    )
-                }
+                        {saleListings.length > 0 && (
+                            <Section
+                                title="Recent places for sale"
+                                linkTo="/search?type=sale"
+                                listings={saleListings}
+                            />
+                        )}
+                    </div>
+                </>
+            )}
+        </div>
+    );
+}
 
-                {
-                    saleListings && saleListings.length > 0 && (
-                        <div className="">
-                            <div className="my-3">
-                                <h2 className='text-2xl font-semibold text-slate-600'>Recent places for sale</h2>
-                                <Link to={'/search?type=sale'}
-                                    className='text-sm text-blue-800 hover:underline'>
-                                    Show more places for sale
-                                </Link>
-                            </div>
-
-                            <div className="flex flex-wrap gap-4">
-                                {
-                                    saleListings.map((listing) => (
-                                        <ListingItem listing={listing} key={listing._id} />
-                                    ))
-                                }
-                            </div>
-                        </div>
-                    )
-                }
+function Section({ title, linkTo, listings }) {
+    return (
+        <div>
+            <div className="my-3">
+                <h2 className="text-2xl font-semibold text-slate-600">{title}</h2>
+                <Link to={linkTo} className="text-sm text-blue-800 hover:underline">
+                    Show more
+                </Link>
+            </div>
+            <div className="flex flex-wrap gap-4">
+                {listings.map((listing) => (
+                    <ListingItem listing={listing} key={listing._id} />
+                ))}
             </div>
         </div>
     );

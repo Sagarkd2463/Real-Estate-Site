@@ -69,6 +69,70 @@ const google = async (req, res, next) => {
     }
 };
 
+const facebook = async (req, res, next) => {
+    try {
+        const existingUser = await User.findOne({ email: req.body.email });
+
+        if (existingUser) {
+            const token = jwt.sign({ id: existingUser._id }, process.env.JWT_SECRET);
+            const { password: pass, ...userinfo } = existingUser._doc;
+
+            res.cookie('access_token', token, { httpOnly: true }).status(200).json(userinfo);
+        } else {
+            const generatedPassword = Math.random().toString(36).slice(-8) + Math.random().toString(36).slice(-8);
+            const hashedPassword = bcryptjs.hashSync(generatedPassword, 10);
+
+            const newUser = new User({
+                username: req.body.name.split(" ").join("").toLowerCase() + Math.random().toString(36).slice(-8),
+                email: req.body.email,
+                password: hashedPassword,
+                avatar: req.body.photo,
+            });
+
+            await newUser.save();
+
+            const token = jwt.sign({ id: newUser._id }, process.env.JWT_SECRET);
+            const { password: pass, ...userinfo } = newUser._doc;
+
+            res.cookie('access_token', token, { httpOnly: true }).status(200).json(userinfo);
+        }
+    } catch (error) {
+        next(error);
+    }
+};
+
+const github = async (req, res, next) => {
+    try {
+        const existingUser = await User.findOne({ email: req.body.email });
+
+        if (existingUser) {
+            const token = jwt.sign({ id: existingUser._id }, process.env.JWT_SECRET);
+            const { password: pass, ...userinfo } = existingUser._doc;
+
+            res.cookie('access_token', token, { httpOnly: true }).status(200).json(userinfo);
+        } else {
+            const generatedPassword = Math.random().toString(36).slice(-8) + Math.random().toString(36).slice(-8);
+            const hashedPassword = bcryptjs.hashSync(generatedPassword, 10);
+
+            const newUser = new User({
+                username: req.body.name.split(" ").join("").toLowerCase() + Math.random().toString(36).slice(-8),
+                email: req.body.email,
+                password: hashedPassword,
+                avatar: req.body.photo,
+            });
+
+            await newUser.save();
+
+            const token = jwt.sign({ id: newUser._id }, process.env.JWT_SECRET);
+            const { password: pass, ...userinfo } = newUser._doc;
+
+            res.cookie('access_token', token, { httpOnly: true }).status(200).json(userinfo);
+        }
+    } catch (error) {
+        next(error);
+    }
+};
+
 const signout = async (req, res, next) => {
     try {
         res.clearCookie('access_token');
@@ -82,5 +146,7 @@ module.exports = {
     signin,
     signup,
     google,
+    facebook,
+    github,
     signout
 };

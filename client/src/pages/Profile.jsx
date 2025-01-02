@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { getDownloadURL, getStorage, ref, uploadBytesResumable } from 'firebase/storage';
-import { FirebaseApp } from '../Firebase';
+import { auth } from '../Firebase';
 import {
     updateUserStart,
     updateUserSuccess,
@@ -29,7 +29,7 @@ function Profile() {
     const dispatch = useDispatch();
 
     const handleFileUpload = (file) => {
-        const storage = getStorage(FirebaseApp);
+        const storage = getStorage(auth);
         const fileName = new Date().getTime() + file.name;
         const storageRef = ref(storage, fileName);
 

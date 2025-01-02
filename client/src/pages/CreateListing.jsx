@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { getDownloadURL, getStorage, ref, uploadBytesResumable } from 'firebase/storage';
-import { FirebaseApp } from '../Firebase';
+import { auth } from '../Firebase';
 import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 
@@ -54,7 +54,7 @@ const CreateListing = () => {
 
     const storeImage = async (file) => {
         return new Promise((resolve, reject) => {
-            const storage = getStorage(FirebaseApp);
+            const storage = getStorage(auth);
             const fileName = new Date().getTime() + file.name;
             const storageRef = ref(storage, fileName);
             const uploadTask = uploadBytesResumable(storageRef, file);
