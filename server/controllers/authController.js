@@ -37,100 +37,65 @@ const signin = async (req, res, next) => {
     }
 };
 
-const google = async (req, res, next) => {
+const oauthHandler = async (req, res, next, platform) => {
     try {
-        const existingUser = await User.findOne({ email: req.body.email });
+        const { name, email, photo } = req.body;
+
+        if (!name || !email || !photo) {
+            return next(errorHandler(400, "Invalid Request", "Missing required fields: name, email, or photo."));
+        }
+
+        let existingUser = await User.findOne({ email });
 
         if (existingUser) {
-            const token = jwt.sign({ id: existingUser._id }, process.env.JWT_SECRET);
+            const token = jwt.sign({ id: existingUser._id }, process.env.JWT_SECRET, { expiresIn: '7d' });
             const { password: pass, ...userinfo } = existingUser._doc;
 
-            res.cookie('access_token', token, { httpOnly: true }).status(200).json(userinfo);
-        } else {
-            const generatedPassword = Math.random().toString(36).slice(-8) + Math.random().toString(36).slice(-8);
-            const hashedPassword = bcryptjs.hashSync(generatedPassword, 10);
-
-            const newUser = new User({
-                username: req.body.name.split(" ").join("").toLowerCase() + Math.random().toString(36).slice(-8),
-                email: req.body.email,
-                password: hashedPassword,
-                avatar: req.body.photo,
-            });
-
-            await newUser.save();
-
-            const token = jwt.sign({ id: newUser._id }, process.env.JWT_SECRET);
-            const { password: pass, ...userinfo } = newUser._doc;
-
-            res.cookie('access_token', token, { httpOnly: true }).status(200).json(userinfo);
+            return res
+                .cookie('access_token', token, { httpOnly: true })
+                .status(200)
+                .json(userinfo);
         }
+
+        // Generate a secure password for new users
+        const generatedPassword = `${Math.random().toString(36).slice(-8)}${Math.random().toString(36).slice(-8)}`;
+        const hashedPassword = bcryptjs.hashSync(generatedPassword, 10);
+
+        const usernameBase = name.split(" ").join("").toLowerCase();
+        const uniqueUsername = `${usernameBase}${Math.random().toString(36).slice(-4)}`;
+
+        const newUser = new User({
+            username: uniqueUsername,
+            email,
+            password: hashedPassword,
+            avatar: photo,
+        });
+
+        await newUser.save();
+
+        const token = jwt.sign({ id: newUser._id }, process.env.JWT_SECRET, { expiresIn: '7d' });
+        const { password: pass, ...userinfo } = newUser._doc;
+
+        res
+            .cookie('access_token', token, { httpOnly: true })
+            .status(200)
+            .json(userinfo);
     } catch (error) {
-        next(error);
+        console.error(`${platform} OAuth Handler Error:`, error.message);
+        next(errorHandler(500, "Server Error", `Failed to process ${platform} OAuth login.`));
     }
+};
+
+const google = async (req, res, next) => {
+    await oauthHandler(req, res, next, "Google");
 };
 
 const facebook = async (req, res, next) => {
-    try {
-        const existingUser = await User.findOne({ email: req.body.email });
-
-        if (existingUser) {
-            const token = jwt.sign({ id: existingUser._id }, process.env.JWT_SECRET);
-            const { password: pass, ...userinfo } = existingUser._doc;
-
-            res.cookie('access_token', token, { httpOnly: true }).status(200).json(userinfo);
-        } else {
-            const generatedPassword = Math.random().toString(36).slice(-8) + Math.random().toString(36).slice(-8);
-            const hashedPassword = bcryptjs.hashSync(generatedPassword, 10);
-
-            const newUser = new User({
-                username: req.body.name.split(" ").join("").toLowerCase() + Math.random().toString(36).slice(-8),
-                email: req.body.email,
-                password: hashedPassword,
-                avatar: req.body.photo,
-            });
-
-            await newUser.save();
-
-            const token = jwt.sign({ id: newUser._id }, process.env.JWT_SECRET);
-            const { password: pass, ...userinfo } = newUser._doc;
-
-            res.cookie('access_token', token, { httpOnly: true }).status(200).json(userinfo);
-        }
-    } catch (error) {
-        next(error);
-    }
+    await oauthHandler(req, res, next, "Facebook");
 };
 
 const github = async (req, res, next) => {
-    try {
-        const existingUser = await User.findOne({ email: req.body.email });
-
-        if (existingUser) {
-            const token = jwt.sign({ id: existingUser._id }, process.env.JWT_SECRET);
-            const { password: pass, ...userinfo } = existingUser._doc;
-
-            res.cookie('access_token', token, { httpOnly: true }).status(200).json(userinfo);
-        } else {
-            const generatedPassword = Math.random().toString(36).slice(-8) + Math.random().toString(36).slice(-8);
-            const hashedPassword = bcryptjs.hashSync(generatedPassword, 10);
-
-            const newUser = new User({
-                username: req.body.name.split(" ").join("").toLowerCase() + Math.random().toString(36).slice(-8),
-                email: req.body.email,
-                password: hashedPassword,
-                avatar: req.body.photo,
-            });
-
-            await newUser.save();
-
-            const token = jwt.sign({ id: newUser._id }, process.env.JWT_SECRET);
-            const { password: pass, ...userinfo } = newUser._doc;
-
-            res.cookie('access_token', token, { httpOnly: true }).status(200).json(userinfo);
-        }
-    } catch (error) {
-        next(error);
-    }
+    await oauthHandler(req, res, next, "GitHub");
 };
 
 const signout = async (req, res, next) => {
@@ -148,5 +113,5 @@ module.exports = {
     google,
     facebook,
     github,
-    signout
+    signout,
 };

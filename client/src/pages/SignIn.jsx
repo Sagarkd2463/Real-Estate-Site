@@ -5,9 +5,9 @@ import { signInStart, signInSuccess, signInFailure } from '../redux/user/userSli
 import OAuth from '../components/OAuth';
 
 function SignIn() {
-
     const [formData, setFormData] = useState({});
-    const { loading, error } = useSelector((state) => state.user);
+    const [localError, setLocalError] = useState(null);
+    const { loading } = useSelector((state) => state.user);
     const navigate = useNavigate();
     const dispatch = useDispatch();
 
@@ -16,73 +16,83 @@ function SignIn() {
             ...formData,
             [e.target.id]: e.target.value,
         });
+        setLocalError(null);
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
 
+        if (!formData.email || !formData.password) {
+            setLocalError('Email and password are required.');
+            return;
+        }
+
         try {
             dispatch(signInStart());
 
-            const res = await fetch('/api/auth/signin',
-                {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(formData),
-                });
+            const res = await fetch('/api/auth/signin', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(formData),
+            });
 
-            const data = await res.json();
-
-            if (data.success === false) {
-                dispatch(signInFailure(data.message));
-                return;
+            if (!res.ok) {
+                const errorData = await res.json();
+                throw new Error(errorData.message || 'Sign-in failed. Please try again.');
             }
 
+            const data = await res.json();
             dispatch(signInSuccess(data));
             navigate('/');
         } catch (error) {
+            setLocalError(error.message);
             dispatch(signInFailure(error.message));
         }
     };
 
     return (
-        <div className='p-3 max-w-lg mx-auto'>
-            <h1 className='text-3xl text-center font-semibold my-7'>Sign In</h1>
-            <form className='flex flex-col gap-4' onSubmit={handleSubmit}>
+        <div className="p-3 max-w-lg mx-auto">
+            <h1 className="text-3xl text-center font-semibold my-7">Sign In</h1>
+            <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
                 <input
                     type="email"
-                    placeholder='email'
-                    className='border p-3 rounded-lg focus:outline-none'
-                    id='email'
-                    onChange={handleChange} />
+                    placeholder="Email"
+                    className="border p-3 rounded-lg focus:outline-none"
+                    id="email"
+                    onChange={handleChange}
+                />
 
                 <input
                     type="password"
-                    placeholder='password'
-                    className='border p-3 rounded-lg focus:outline-none'
-                    id='password'
-                    onChange={handleChange} />
+                    placeholder="Password"
+                    className="border p-3 rounded-lg focus:outline-none"
+                    id="password"
+                    onChange={handleChange}
+                />
 
                 <button
-                    className='bg-slate-700 text-white p-3 rounded-lg uppercase 
-                hover:opacity-95 disabled:opacity-80 cursor-pointer font-semibold' disabled={loading}>
+                    className="bg-slate-700 text-white p-3 rounded-lg uppercase 
+                hover:opacity-95 disabled:opacity-80 cursor-pointer font-semibold"
+                    disabled={loading}
+                >
                     {loading ? 'Loading...' : 'Sign In'}
                 </button>
 
                 <OAuth />
             </form>
 
-            <div className='flex gap-2 mt-5'>
-                <p className='text-xl'>No account, please sign up!</p>
+            <div className="flex gap-2 mt-5">
+                <p className="text-xl">No account? Please sign up!</p>
                 <Link to={'/sign-up'}>
-                    <span className='text-blue-700 text-xl hover:underline'>Sign Up</span>
+                    <span className="text-blue-700 text-xl hover:underline">Sign Up</span>
                 </Link>
             </div>
-            {error && <p className='text-red-500 mt-5'>{error}</p>}
+
+            {localError && <p className="text-red-500 mt-5">{localError}</p>}
         </div>
     );
-};
+}
 
 export default SignIn;

@@ -6,16 +6,20 @@ import { signInFailure, signInSuccess } from '../redux/user/userSlice';
 import { useNavigate } from 'react-router-dom';
 
 const OAuth = () => {
-
     const dispatch = useDispatch();
     const navigate = useNavigate();
 
-    const handleGoogleClick = async () => {
+    const handleOAuthClick = async (provider, endpoint) => {
         try {
-            const provider = new GoogleAuthProvider();
             const result = await signInWithPopup(auth, provider);
 
-            const res = await fetch('/api/auth/google', {
+            // Check if user information is available
+            if (!result.user || !result.user.displayName || !result.user.email || !result.user.photoURL) {
+                console.warn("Incomplete user information received from OAuth provider.");
+                return;
+            }
+
+            const res = await fetch(endpoint, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -27,66 +31,40 @@ const OAuth = () => {
                 }),
             });
 
+            if (!res.ok) throw new Error('Authentication failed. Please try again.');
+
             const data = await res.json();
+
             dispatch(signInSuccess(data));
             navigate('/');
         } catch (error) {
+            if (error.code === 'auth/popup-closed-by-user') {
+                console.warn("OAuth popup was closed by the user before completing the sign-in.");
+                return;
+            }
+
+            if (error.code === 'auth/account-exists-with-different-credential') {
+                console.error("Account exists with a different credential. Error: ", error.message);
+
+                alert(
+                    `The email address is already associated with another authentication provider. 
+                    Please sign in using that provider and link your accounts if needed.`
+                );
+
+                return;
+            }
+
+            console.error("OAuth Error: ", error.message);
             dispatch(signInFailure(error.message));
         }
     };
 
-    const handleFacebookClick = async () => {
-        try {
-            const provider = new FacebookAuthProvider();
-            const result = await signInWithPopup(auth, provider);
-
-            const res = await fetch('/api/auth/facebook', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    name: result.user.displayName,
-                    email: result.user.email,
-                    photo: result.user.photoURL,
-                }),
-            });
-
-            const data = await res.json();
-            dispatch(signInSuccess(data));
-            navigate('/');
-        } catch (error) {
-            dispatch(signInFailure(error.message));
-        }
-    };
-
-    const handleGithubClick = async () => {
-        try {
-            const provider = new GithubAuthProvider();
-            const result = await signInWithPopup(auth, provider);
-
-            const res = await fetch('/api/auth/github', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    name: result.user.displayName,
-                    email: result.user.email,
-                    photo: result.user.photoURL,
-                }),
-            });
-
-            const data = await res.json();
-            dispatch(signInSuccess(data));
-            navigate('/');
-        } catch (error) {
-            dispatch(signInFailure(error.message));
-        }
-    };
+    const handleGoogleClick = () => handleOAuthClick(new GoogleAuthProvider(), '/api/auth/google');
+    const handleFacebookClick = () => handleOAuthClick(new FacebookAuthProvider(), '/api/auth/facebook');
+    const handleGithubClick = () => handleOAuthClick(new GithubAuthProvider(), '/api/auth/github');
 
     return (
-        <>
+        <div className='flex flex-col gap-4 justify-center'>
             <button
                 type='button'
                 className='bg-red-700 text-white p-3 rounded-lg uppercase hover:opacity-95'
@@ -107,7 +85,7 @@ const OAuth = () => {
                 onClick={handleGithubClick}>
                 Continue with GitHub
             </button>
-        </>
+        </div>
     );
 };
 
