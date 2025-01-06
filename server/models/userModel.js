@@ -17,7 +17,12 @@ const userSchema = new mongoose.Schema({
     },
     avatar: {
         type: String,
-        default: "c:\Users\SAGAR\OneDrive\Desktop\Whatsapp Icons\avatar1.jpeg",
+        default: "https://i.pinimg.com/originals/de/6e/8d/de6e8d53598eecfb6a2d86919b267791.png",
+    },
+    gender: {
+        type: String,
+        enum: ['Male', 'Female', 'Other'],
+        required: true,
     },
 }, { timestamps: true });
 

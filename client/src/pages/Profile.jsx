@@ -16,7 +16,6 @@ import {
 import { Link } from 'react-router-dom';
 
 function Profile() {
-
     const { currentUser, loading, error } = useSelector((state) => state.user);
     const fileRef = useRef(null);
     const [file, setFile] = useState(undefined);
@@ -28,6 +27,8 @@ function Profile() {
     const [userListings, setUserListings] = useState([]);
     const dispatch = useDispatch();
 
+    const defaultAvatar = 'https://i.pinimg.com/originals/de/6e/8d/de6e8d53598eecfb6a2d86919b267791.png';
+
     const handleFileUpload = (file) => {
         const storage = getStorage(auth);
         const fileName = new Date().getTime() + file.name;
@@ -35,7 +36,8 @@ function Profile() {
 
         const uploadTask = uploadBytesResumable(storageRef, file);
 
-        uploadTask.on('state_changed',
+        uploadTask.on(
+            'state_changed',
             (snapshot) => {
                 const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
                 setFilePerc(Math.round(progress));
@@ -47,7 +49,8 @@ function Profile() {
                 getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
                     setFormData({ ...formData, avatar: downloadURL });
                 });
-            });
+            }
+        );
     };
 
     useEffect(() => {
@@ -69,14 +72,13 @@ function Profile() {
         try {
             dispatch(updateUserStart());
 
-            const res = await fetch(`/api/user/update/${currentUser._id}`,
-                {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(formData),
-                });
+            const res = await fetch(`/api/user/update/${currentUser._id}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(formData),
+            });
 
             const data = await res.json();
 
@@ -96,10 +98,9 @@ function Profile() {
         try {
             dispatch(deleteUserStart());
 
-            const res = await fetch(`/api/user/delete/${currentUser._id}`,
-                {
-                    method: 'DELETE',
-                });
+            const res = await fetch(`/api/user/delete/${currentUser._id}`, {
+                method: 'DELETE',
+            });
 
             const data = await res.json();
 
@@ -150,7 +151,6 @@ function Profile() {
     };
 
     const handleListingDelete = async (listingId) => {
-
         try {
             const res = await fetch(`/api/listing/delete/${listingId}`, {
                 method: 'DELETE',
@@ -185,29 +185,28 @@ function Profile() {
                     accept='image/*'
                 />
                 <img
-                    src={formData.avatar || currentUser.avatar}
+                    src={formData.avatar || currentUser.avatar || defaultAvatar}
                     alt="profile"
                     className='rounded-full h-24 w-24 object-cover cursor-pointer self-center mt-2'
+                    onError={(e) => (e.target.src = defaultAvatar)}
                     onClick={() => fileRef.current.click()}
                 />
                 <p className='text-sm self-center'>
-                    {
-                        fileUploadError ? (
-                            <span className='text-red-700'>
-                                Image Upload Error (image must be less than 2MB)
-                            </span>
-                        ) : filePerc > 0 && filePerc < 100 ? (
-                            <span className='text-slate-700'>
-                                {`Uploading ${filePerc}%`}
-                            </span>
-                        ) : filePerc === 100 ? (
-                            <span className='text-green-700'>
-                                Image successfully uploaded!!!
-                            </span>
-                        ) : (
-                            ''
-                        )
-                    }
+                    {fileUploadError ? (
+                        <span className='text-red-700'>
+                            Image Upload Error (image must be less than 2MB)
+                        </span>
+                    ) : filePerc > 0 && filePerc < 100 ? (
+                        <span className='text-slate-700'>
+                            {`Uploading ${filePerc}%`}
+                        </span>
+                    ) : filePerc === 100 ? (
+                        <span className='text-green-700'>
+                            Image successfully uploaded!!!
+                        </span>
+                    ) : (
+                        ''
+                    )}
                 </p>
                 <input
                     type="text"
@@ -297,7 +296,7 @@ function Profile() {
                                     <p>{listing.name}</p>
                                 </Link>
 
-                                <div className="flex flex-col items-center ">
+                                <div className="flex flex-col items-center">
                                     <button
                                         onClick={() => handleListingDelete(listing._id)}
                                         className='text-red-700 uppercase'>

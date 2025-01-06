@@ -13,7 +13,6 @@ const OAuth = () => {
         try {
             const result = await signInWithPopup(auth, provider);
 
-            // Check if user information is available
             if (!result.user || !result.user.displayName || !result.user.email || !result.user.photoURL) {
                 console.warn("Incomplete user information received from OAuth provider.");
                 return;
@@ -28,6 +27,7 @@ const OAuth = () => {
                     name: result.user.displayName,
                     email: result.user.email,
                     photo: result.user.photoURL,
+                    gender: 'Other',
                 }),
             });
 
@@ -48,7 +48,7 @@ const OAuth = () => {
 
                 alert(
                     `The email address is already associated with another authentication provider. 
-                    Please sign in using that provider and link your accounts if needed.`
+                    Please sign in using another email with another provider.`
                 );
 
                 return;

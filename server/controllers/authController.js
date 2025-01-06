@@ -5,10 +5,15 @@ const jwt = require('jsonwebtoken');
 require('dotenv').config();
 
 const signup = async (req, res, next) => {
-    const { username, email, password } = req.body;
+    const { username, email, password, gender } = req.body;
     const hashedPassword = bcryptjs.hashSync(password, 10);
 
-    const newUser = new User({ username, email, password: hashedPassword });
+    const newUser = new User({
+        username,
+        email,
+        password: hashedPassword,
+        gender
+    });
 
     try {
         await newUser.save();
@@ -39,7 +44,7 @@ const signin = async (req, res, next) => {
 
 const oauthHandler = async (req, res, next, platform) => {
     try {
-        const { name, email, photo } = req.body;
+        const { name, email, photo, gender = "Other" } = req.body;
 
         if (!name || !email || !photo) {
             return next(errorHandler(400, "Invalid Request", "Missing required fields: name, email, or photo."));
@@ -68,6 +73,7 @@ const oauthHandler = async (req, res, next, platform) => {
             username: uniqueUsername,
             email,
             password: hashedPassword,
+            gender,
             avatar: photo,
         });
 
