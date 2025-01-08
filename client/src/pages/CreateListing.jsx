@@ -275,7 +275,7 @@ const CreateListing = () => {
                                 type="number"
                                 id="regularPrice"
                                 min='50'
-                                max='10000000'
+                                max='10000000000'
                                 className='p-3 border border-gray-300 rounded-lg'
                                 onChange={handleChange}
                                 value={formData.regularPrice}
@@ -357,7 +357,7 @@ const CreateListing = () => {
                 <button
                     type='submit'
                     disabled={loading}
-                    className='p-3 bg-slate-700 text-white uppercase rounded-lg hover:opacity-95 disabled:opacity-80'>
+                    className='p-2.5 bg-slate-700 text-white uppercase rounded-lg hover:opacity-95 disabled:opacity-80'>
                     {loading ? 'Creating...' : 'Create Listing'}
                 </button>
 

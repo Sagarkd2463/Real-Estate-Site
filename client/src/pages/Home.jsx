@@ -3,9 +3,11 @@ import { Link } from 'react-router-dom';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import 'swiper/css/bundle';
 import { Navigation } from 'swiper/modules';
+import { useSelector } from 'react-redux';
 import ListingItem from '../components/ListingItem';
 
 function Home() {
+    const { currentUser } = useSelector((state) => state.user);
     const [offerListings, setOfferListings] = useState([]);
     const [saleListings, setSaleListings] = useState([]);
     const [rentListings, setRentListings] = useState([]);
@@ -13,6 +15,8 @@ function Home() {
     const [error, setError] = useState('');
 
     useEffect(() => {
+        if (!currentUser) return;
+
         const fetchListings = async () => {
             setLoading(true);
             setError('');
@@ -45,7 +49,17 @@ function Home() {
         };
 
         fetchListings();
-    }, []);
+    }, [currentUser]);
+
+    if (!currentUser) {
+        return (
+            <div className="flex flex-col items-center justify-center min-h-screen">
+                <p className="text-gray-600 text-lg">
+                    Please <Link to="/sign-in" className="text-blue-600 font-semibold hover:underline">sign in</Link> to view your listings.
+                </p>
+            </div>
+        );
+    }
 
     return (
         <div>
