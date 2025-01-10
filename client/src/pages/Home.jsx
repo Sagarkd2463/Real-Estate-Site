@@ -1,8 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
-import { Swiper, SwiperSlide } from 'swiper/react';
-import 'swiper/css/bundle';
-import { Navigation } from 'swiper/modules';
+import { Link, useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import ListingItem from '../components/ListingItem';
 
@@ -13,6 +10,7 @@ function Home() {
     const [rentListings, setRentListings] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
+    const navigate = useNavigate();
 
     useEffect(() => {
         if (!currentUser) return;
@@ -51,60 +49,56 @@ function Home() {
         fetchListings();
     }, [currentUser]);
 
-    if (!currentUser) {
-        return (
-            <div className="flex flex-col items-center justify-center min-h-screen">
-                <p className="text-gray-600 text-lg">
-                    Please <Link to="/sign-in" className="text-blue-600 font-semibold hover:underline">sign in</Link> to view your listings.
-                </p>
-            </div>
-        );
-    }
-
     return (
         <div>
             <div className="flex flex-col gap-6 p-28 px-3 max-w-6xl mx-auto">
-                <h1 className="text-slate-700 font-bold text-3xl lg:text-6xl">
-                    Find your next <span className="text-slate-500">perfect</span>
-                    <br />
-                    place with ease
-                </h1>
+                {currentUser &&
+                    <>
+                        <h1 className="text-slate-700 font-bold text-3xl lg:text-6xl">
+                            Find your next <span className="text-slate-500">perfect</span>
+                            <br />
+                            place with ease
+                        </h1>
 
-                <div className="text-gray-400 text-xs sm:text-sm">
-                    Brick Estate is the best place to find your next perfect place to live.
-                    <br />
-                    We have a wide range of properties for you to choose from.
-                </div>
+                        <div className="text-gray-400 text-xs sm:text-sm">
+                            Brick Estate is the best place to find your next perfect place to live.
+                            <br />
+                            We have a wide range of properties for you to choose from.
+                        </div>
 
-                <Link
-                    to="/search"
-                    className="text-xs sm:text-sm text-blue-800 font-bold hover:underline"
-                >
-                    Let's start now...
-                </Link>
+                        <Link
+                            to="/search"
+                            className="text-xs sm:text-sm text-blue-800 font-bold hover:underline"
+                        >
+                            Let's start now...
+                        </Link>
+                    </>
+                }
             </div>
 
-            {loading && <p className="text-center text-gray-500">Loading listings...</p>}
-            {error && <p className="text-center text-red-500">Error: {error}</p>}
+            {loading &&
+                <div className="d-flex justify-content-center align-items-center" style={{ minHeight: "100vh" }}>
+                    <div className="spinner-border" role="status">
+                        <span className="visually-hidden">Loading...</span>
+                    </div>
+                </div>
+            }
 
-            {!loading && !error && (
+            {error &&
+                <div className="text-center mt-5">
+                    <p className="text-danger">Something went wrong. Please try again!</p>
+                    <button
+                        className="btn mt-3"
+                        style={{ backgroundColor: "#faa935", color: "white" }}
+                        onClick={() => navigate("/")}
+                    >
+                        Go to Home Page
+                    </button>
+                </div>
+            }
+
+            {!loading && !error && currentUser && (
                 <>
-                    {offerListings.length > 0 && (
-                        <Swiper navigation modules={[Navigation]}>
-                            {offerListings.map((offerListing) => (
-                                <SwiperSlide key={offerListing._id}>
-                                    <div
-                                        className="h-[500px]"
-                                        style={{
-                                            background: `url(${offerListing.imageUrls[0]}) center no-repeat`,
-                                            backgroundSize: 'cover',
-                                        }}
-                                    ></div>
-                                </SwiperSlide>
-                            ))}
-                        </Swiper>
-                    )}
-
                     <div className="max-w-6xl mx-auto p-3 flex flex-col gap-8 my-10">
                         {offerListings.length > 0 && (
                             <Section

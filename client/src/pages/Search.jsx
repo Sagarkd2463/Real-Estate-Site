@@ -235,9 +235,13 @@ const Search = () => {
                         <p className='text-xl text-slate-700'>No listing found!</p>
                     )}
 
-                    {loading && (
-                        <p className='text-xl text-slate-700 text-center w-full'>Loading...</p>
-                    )}
+                    {loading &&
+                        <div className="d-flex justify-content-center align-items-center" style={{ minHeight: "100vh" }}>
+                            <div className="spinner-border" role="status">
+                                <span className="visually-hidden">Loading...</span>
+                            </div>
+                        </div>
+                    }
 
                     {!loading && listings && listings.map((listing) => (
                         <ListingItem key={listing._id} listing={listing} />

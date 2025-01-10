@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { getDownloadURL, getStorage, ref, uploadBytesResumable } from 'firebase/storage';
 import { auth } from '../Firebase';
 import { useSelector } from 'react-redux';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, Link } from 'react-router-dom';
 
 const UpdateListing = () => {
     const { currentUser } = useSelector((state) => state.user);
@@ -109,7 +109,7 @@ const UpdateListing = () => {
     };
 
     const handleChange = (e) => {
-        const { id, type, checked, value } = e.target;
+        const { id, checked, value } = e.target;
         if (id === 'sale' || id === 'rent') {
             setFormData((prevState) => ({ ...prevState, type: id }));
         } else if (['parking', 'furnished', 'offer'].includes(id)) {
@@ -346,12 +346,14 @@ const UpdateListing = () => {
                     </div>
                 </div>
 
-                <button
-                    type="submit"
-                    disabled={loading || uploading}
-                    className="w-full py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 disabled:opacity-50">
-                    {loading ? 'Updating...' : 'Update Listing'}
-                </button>
+                <Link to={'/'}>
+                    <button
+                        type="submit"
+                        disabled={loading || uploading}
+                        className="w-full py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 disabled:opacity-50">
+                        {loading ? 'Updating...' : 'Update Listing'}
+                    </button>
+                </Link>
                 {error && <p className="text-red-600 text-sm mt-2">{error}</p>}
             </form>
         </main>

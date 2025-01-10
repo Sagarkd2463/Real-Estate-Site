@@ -46,10 +46,27 @@ const Listing = () => {
 
     return (
         <main>
-            {loading && <p className='text-center my-7 text-2xl'>Loading...</p>}
-            {error && (
-                <p className='text-center my-7 text-2xl'>Something went wrong!</p>
-            )}
+            {loading &&
+                <div className="d-flex justify-content-center align-items-center" style={{ minHeight: "100vh" }}>
+                    <div className="spinner-border" role="status">
+                        <span className="visually-hidden">Loading...</span>
+                    </div>
+                </div>
+            }
+
+            {error &&
+                <div className="text-center mt-5">
+                    <p className="text-danger">Something went wrong. Please try again!</p>
+                    <button
+                        className="btn mt-3"
+                        style={{ backgroundColor: "#faa935", color: "white" }}
+                        onClick={() => navigate("/")}
+                    >
+                        Go to Home Page
+                    </button>
+                </div>
+            }
+
             {listing && !loading && !error && (
                 <div>
                     <Swiper navigation>
