@@ -56,6 +56,52 @@ Authentication: JWT (access token via cookies), OAuth (Google, Facebook, GitHub)
 Security: HTTP-only cookies, route protection middleware.
 Tools: Git, GitHub.
 
+ REQUIRED PACKAGES
+ -----------------------------------
+🔧 Backend (Node.js + Express)
+---------------------------------------
+
+Package	            Version	                Purpose
+--------------------------------------------------------------------------
+express	            ^4.21.0	                Web framework for Node.js
+mongoose	          ^8.6.3	                ODM for MongoDB
+dotenv	            ^16.4.5	                Loads environment variables from .env
+bcryptjs	          ^2.4.3	                Password hashing
+jsonwebtoken	      ^9.0.2	                JWT-based authentication
+cookie-parser	      ^1.4.7	                Parses cookies for auth/session
+nodemon	            ^3.1.7 (dev)	          Auto-restarts server on file changes
+
+⚛️ Frontend (React.js + Vite)
+--------------------------------------
+
+Package	              Version	                    Purpose
+----------------------------------------------------------------------------
+react	                ^18.3.1                	    UI library
+react-dom	            ^18.3.1	                    DOM rendering for React
+react-router-dom	    ^6.26.2                    	Routing in React apps
+@reduxjs/toolkit	    ^2.2.5	                    Redux state management
+react-redux	          ^9.1.2	                    React bindings for Redux
+redux-persist	        ^6.0.0	                    Persist Redux store (can be removed if not used)
+firebase	            ^10.14.1	                  Firebase services (auth/storage/firestore)
+swiper	              ^11.1.14	                  Carousel/swiper component
+react-icons	          ^5.3.0	                    Icons in React UI
+
+🛠 Dev Dependencies (Frontend)
+----------------------------------------
+
+Package	              Version	                        Purpose
+--------------------------------------------------------------------------------
+vite	                  ^5.4.1	                        Frontend build tool
+@vitejs/plugin-react	  ^4.3.1	                        Enables React support in Vite
+tailwindcss	            ^3.4.10	                        Utility-first CSS framework
+autoprefixer	          ^10.4.20	                      Adds vendor prefixes for CSS
+postcss	                ^8.4.45	                        CSS transformation tool
+@tailwindcss/line-clamp	^0.4.4	                        Line clamping plugin for Tailwind
+eslint	                ^9.9.0	                        Linter for JavaScript/React
+globals	                ^15.9.0	                        Global variables for ESLint
+@eslint/js, eslint-plugin-react, eslint-plugin-react-hooks, eslint-plugin-react-refresh	Various	ESLint support for React
+@types/react, @types/react-dom	Various	TypeScript support for React (if used)
+
 KEY API ENDPOINTS
 ---------------------------
 
