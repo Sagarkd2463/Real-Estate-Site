@@ -282,8 +282,9 @@ const UpdateListing = () => {
                                     value={formData.regularPrice}
                                     required
                                 />
-                                <span>Regular Price ($ / month)</span>
+                                <span className='text-sm'>Regular Price (₹ / month)</span>
                             </div>
+
                             {formData.offer && (
                                 <div className="flex items-center gap-2">
                                     <input
@@ -296,7 +297,7 @@ const UpdateListing = () => {
                                         value={formData.discountPrice}
                                         required
                                     />
-                                    <span>Discount Price ($ / month)</span>
+                                    <span>Discount Price (₹ / month)</span>
                                 </div>
                             )}
                         </div>
@@ -320,7 +321,7 @@ const UpdateListing = () => {
                                 type="button"
                                 disabled={uploading}
                                 onClick={handleImageSubmit}
-                                className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50">
+                                className="px-4 py-2 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700 disabled:opacity-50">
                                 {uploading ? 'Uploading...' : 'Upload'}
                             </button>
                         </div>
@@ -354,6 +355,7 @@ const UpdateListing = () => {
                         {loading ? 'Updating...' : 'Update Listing'}
                     </button>
                 </Link>
+
                 {error && <p className="text-red-600 text-sm mt-2">{error}</p>}
             </form>
         </main>
