@@ -191,7 +191,7 @@ const CreateListing = () => {
                                     onChange={handleChange}
                                     checked={formData.type === 'sale'}
                                 />
-                                <span>Sell</span>
+                                <span>Sale</span>
                             </label>
                             <label className="flex items-center gap-2">
                                 <input
@@ -273,7 +273,7 @@ const CreateListing = () => {
                                     value={formData.regularPrice}
                                     required
                                 />
-                                <span className='text-sm'>Regular Price (₹ / month)</span>
+                                <span className='text-sm font-semibold'>Regular Price (₹ / month)</span>
                             </div>
 
                             {formData.offer && (
@@ -288,7 +288,7 @@ const CreateListing = () => {
                                         value={formData.discountPrice}
                                         required
                                     />
-                                    <span>Discount Price (₹ / month)</span>
+                                    <span className='text-sm font-semibold'>Discount Price (₹ / month)</span>
                                 </div>
                             )}
                         </div>

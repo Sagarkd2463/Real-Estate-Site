@@ -46,13 +46,32 @@ const Listing = () => {
 
     return (
         <main>
-            {loading &&
-                <div className="d-flex justify-content-center align-items-center" style={{ minHeight: "100vh" }}>
-                    <div className="spinner-border" role="status">
-                        <span className="visually-hidden">Loading...</span>
+            {loading && (
+                <>
+                    <div className="flex justify-center items-center w-full mt-6 mb-2">
+                        <svg
+                            className="flex items-center px-4 py-2 bg-slate-400 rounded-full shadow hover:bg-slate-700 focus:outline-none animate-spin h-16 w-16 text-white"
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                        >
+                            <circle
+                                className="opacity-25"
+                                cx="12"
+                                cy="12"
+                                r="10"
+                                stroke="currentColor"
+                                strokeWidth="4"
+                            ></circle>
+                            <path
+                                className="opacity-75"
+                                fill="currentColor"
+                                d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+                            ></path>
+                        </svg>
                     </div>
-                </div>
-            }
+                </>
+            )}
 
             {error &&
                 <div className="text-center mt-5">
@@ -101,13 +120,13 @@ const Listing = () => {
                     )}
                     <div className='flex flex-col max-w-4xl mx-auto p-3 my-7 gap-4'>
                         <p className='text-2xl font-semibold'>
-                            {listing.name} - ${' '}
+                            {listing.name} - ₹{' '}
                             {listing.offer
-                                ? listing.discountPrice.toLocaleString('en-US')
-                                : listing.regularPrice.toLocaleString('en-US')}
+                                ? listing.discountPrice.toLocaleString('en-IN')
+                                : listing.regularPrice.toLocaleString('en-IN')}
                             {listing.type === 'rent' && ' / month'}
                         </p>
-                        <p className='flex items-center mt-6 gap-2 text-slate-600  text-sm'>
+                        <p className='flex items-center mt-2 gap-2 text-slate-600 text-normal'>
                             <FaMapMarkerAlt className='text-green-700' />
                             {listing.address}
                         </p>
@@ -117,7 +136,7 @@ const Listing = () => {
                             </p>
                             {listing.offer && (
                                 <p className='bg-green-900 w-full max-w-[200px] text-white text-center p-1 rounded-md'>
-                                    ${+listing.regularPrice - +listing.discountPrice} discount
+                                    ₹ {(+listing.regularPrice - +listing.discountPrice).toLocaleString("en-IN")} discount
                                 </p>
                             )}
                         </div>

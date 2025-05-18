@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { getDownloadURL, getStorage, ref, uploadBytesResumable } from 'firebase/storage';
 import { auth } from '../Firebase';
 import { useSelector } from 'react-redux';
-import { useNavigate, useParams, Link } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 
 const UpdateListing = () => {
     const { currentUser } = useSelector((state) => state.user);
@@ -36,8 +36,8 @@ const UpdateListing = () => {
                 const res = await fetch(`/api/listing/get/${listingId}`);
                 const data = await res.json();
 
-                if (!data.success) {
-                    setError(data.message);
+                if (!res.ok) {
+                    setError(data.message || 'Failed to fetch listing data');
                     return;
                 }
 
@@ -144,12 +144,12 @@ const UpdateListing = () => {
             const data = await res.json();
             setLoading(false);
 
-            if (!data.success) {
+            if (!res.ok) {
                 setError(data.message || 'Failed to update listing.');
                 return;
             }
 
-            navigate(`/listing/${data._id}`);
+            navigate('/');
         } catch (err) {
             setError('An error occurred while updating the listing.');
             setLoading(false);
@@ -200,7 +200,7 @@ const UpdateListing = () => {
                                     onChange={handleChange}
                                     checked={formData.type === 'sale'}
                                 />
-                                <span>Sell</span>
+                                <span>Sale</span>
                             </label>
                             <label className="flex items-center gap-2">
                                 <input
@@ -282,7 +282,7 @@ const UpdateListing = () => {
                                     value={formData.regularPrice}
                                     required
                                 />
-                                <span className='text-sm'>Regular Price (₹ / month)</span>
+                                <span className='text-sm font-semibold'>Regular Price (₹ / month)</span>
                             </div>
 
                             {formData.offer && (
@@ -297,7 +297,7 @@ const UpdateListing = () => {
                                         value={formData.discountPrice}
                                         required
                                     />
-                                    <span>Discount Price (₹ / month)</span>
+                                    <span className='text-sm font-semibold'>Discount Price (₹ / month)</span>
                                 </div>
                             )}
                         </div>
@@ -347,14 +347,12 @@ const UpdateListing = () => {
                     </div>
                 </div>
 
-                <Link to={'/'}>
-                    <button
-                        type="submit"
-                        disabled={loading || uploading}
-                        className="w-full py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 disabled:opacity-50">
-                        {loading ? 'Updating...' : 'Update Listing'}
-                    </button>
-                </Link>
+                <button
+                    type="submit"
+                    disabled={loading || uploading}
+                    className="w-full py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 disabled:opacity-50">
+                    {loading ? 'Updating...' : 'Update Listing'}
+                </button>
 
                 {error && <p className="text-red-600 text-sm mt-2">{error}</p>}
             </form>

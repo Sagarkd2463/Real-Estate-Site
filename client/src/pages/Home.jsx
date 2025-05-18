@@ -19,6 +19,9 @@ function Home() {
             setLoading(true);
             setError('');
 
+            const MIN_LOADING_DURATION = 1500; // 1.5 seconds
+            const startTime = Date.now();
+
             try {
                 const [offers, rent, sale] = await Promise.all([
                     fetch('/api/listing/get?offer=true&limit=4').then((res) => {
@@ -42,7 +45,11 @@ function Home() {
                 setError(err.message);
                 console.error(err.message);
             } finally {
-                setLoading(false);
+                const elapsedTime = Date.now() - startTime;
+                const remainingTime = Math.max(0, MIN_LOADING_DURATION - elapsedTime);
+                setTimeout(() => {
+                    setLoading(false);
+                }, remainingTime);
             }
         };
 
@@ -76,13 +83,32 @@ function Home() {
                 }
             </div>
 
-            {loading &&
-                <div className="d-flex justify-content-center align-items-center" style={{ minHeight: "100vh" }}>
-                    <div className="spinner-border" role="status">
-                        <span className="visually-hidden">Loading...</span>
+            {loading && (
+                <>
+                    <div className="flex justify-center items-center w-full mt-6">
+                        <svg
+                            className="flex items-center px-4 py-2 bg-slate-400 rounded-full shadow hover:bg-slate-700 focus:outline-none animate-spin h-16 w-16 text-white"
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                        >
+                            <circle
+                                className="opacity-25"
+                                cx="12"
+                                cy="12"
+                                r="10"
+                                stroke="currentColor"
+                                strokeWidth="4"
+                            ></circle>
+                            <path
+                                className="opacity-75"
+                                fill="currentColor"
+                                d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+                            ></path>
+                        </svg>
                     </div>
-                </div>
-            }
+                </>
+            )}
 
             {error &&
                 <div className="text-center mt-5">
@@ -98,33 +124,31 @@ function Home() {
             }
 
             {!loading && !error && currentUser && (
-                <>
-                    <div className="max-w-6xl mx-auto p-3 flex flex-col gap-8 my-10">
-                        {offerListings.length > 0 && (
-                            <Section
-                                title="Recent offers"
-                                linkTo="/search?offer=true"
-                                listings={offerListings}
-                            />
-                        )}
+                <div className="max-w-6xl mx-auto p-3 flex flex-col gap-8 my-10">
+                    {offerListings.length > 0 && (
+                        <Section
+                            title="Recent offers"
+                            linkTo="/search?offer=true"
+                            listings={offerListings}
+                        />
+                    )}
 
-                        {rentListings.length > 0 && (
-                            <Section
-                                title="Recent places for rent"
-                                linkTo="/search?type=rent"
-                                listings={rentListings}
-                            />
-                        )}
+                    {rentListings.length > 0 && (
+                        <Section
+                            title="Recent places for rent"
+                            linkTo="/search?type=rent"
+                            listings={rentListings}
+                        />
+                    )}
 
-                        {saleListings.length > 0 && (
-                            <Section
-                                title="Recent places for sale"
-                                linkTo="/search?type=sale"
-                                listings={saleListings}
-                            />
-                        )}
-                    </div>
-                </>
+                    {saleListings.length > 0 && (
+                        <Section
+                            title="Recent places for sale"
+                            linkTo="/search?type=sale"
+                            listings={saleListings}
+                        />
+                    )}
+                </div>
             )}
         </div>
     );
